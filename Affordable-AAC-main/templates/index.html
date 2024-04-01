@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AAC Interpretor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(45deg, #6C5B7B, #C06C84);
+            padding: 20px 0;
+            color: #FFF;
+            text-align: center;
+        }
+        
+        h1, h2 {
+            margin: 0;
+        }
+        
+        #account, #login, #logout {
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        a {
+            color: #C06C84;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        a:hover {
+            color: #6C5B7B;
+        }
+        
+        .flashes {
+            list-style-type: none;
+            padding: 10px;
+            background-color: #ffcccc;
+            border: 1px solid #ff0000;
+            margin-bottom: 20px;
+        }
+        
+        .flashes li {
+            margin: 10px 0;
+        }
+        
+        form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #6C5B7B;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        input[type="submit"]:hover {
+            background: #C06C84;
+        }
+        
+        #selected-words, #words-container {
+            margin: 20px 0;
+        }
+        
+        .word-box {
+            display: inline-block;
+            background: #FFF;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            width: 150px;  
+            text-align: center;
+        }
+        
+        .word-box:hover {
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .word-box img {
+            display: block;
+            margin: 10px auto;
+        }
+        
+        .selected-word {
+            background: #6C5B7B;
+            color: white;
+        }
+
+
+        .word-box[data-category='noun'] {
+        background-color: #FFD700;
+        }
+
+        .word-box[data-category='verb'] {
+        background-color: #FF4500; 
+        }
+
+        .word-box[data-category='adjective'] {
+         background-color: #c022e0; 
+        }
+        .word-box[data-category='pronoun'] {
+        background-color: #b5bdc7;
+        }
+
+
+
+
+    </style>
+
+</head>
+    <header>
+        <h1 id="Title">AAC</h1>
+    </header>
+
+<body>
+    
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    
+
+    <div>
+        <form action="/predict" method="post">
+            <label for="input_text">Enter your text:</label>
+            <input type="text" id="input_text" name="input_text" required>
+            <input type="submit" value="Predict">
+        </form>
+    </div>
+
+
+    <div id="selected-words">
+        <h2>Selected Words</h2>
+        <div id="selected-words-container"></div>
+    </div>
+    
+
+    <div id="words-container">
+    
+        <div id="pronoun">
+            <!-- Dynamic Entries -->
+            {% for word_data in data.pronoun %}
+                <div class="word-box" data-category="pronoun" onclick="wordClicked('{{ word_data.word }}', 'static/{{ word_data.picture }}', this, event)">
+                    {{ word_data.word }}
+                    <img src="{{ url_for('static', filename=word_data.picture) }}" alt="{{ word_data.word }}" width="50" height="50">
+                </div>
+            {% endfor %}
+        </div>
+        <div id="noun">
+    
+            <!-- Dynamic Entries -->
+            {% for word_data in data.noun %}
+                <div class="word-box" data-category="noun" onclick="wordClicked('{{ word_data.word }}', 'static/{{ word_data.picture }}', this, event)">
+                    {{ word_data.word }}
+                    <img src="{{ url_for('static', filename=word_data.picture) }}" alt="{{ word_data.word }}" width="50" height="50">
+                </div>
+            {% endfor %}
+        </div>
+        <div id="verb">
+    
+            <!-- Dynamic Entries -->
+            {% for word_data in data.verb %}
+                <div class="word-box" data-category="verb" onclick="wordClicked('{{ word_data.word }}', 'static/{{ word_data.picture }}', this, event)">
+                    {{ word_data.word }}
+                    <img src="{{ url_for('static', filename=word_data.picture) }}" alt="{{ word_data.word }}" width="50" height="50">
+                </div>
+            {% endfor %}
+        </div>
+        <div id="adjective">
+    
+            <!-- Dynamic Entries -->
+            {% for word_data in data.adjective %}
+                <div class="word-box" data-category="adjective" onclick="wordClicked('{{ word_data.word }}', 'static/{{ word_data.picture }}', this, event)">
+                    {{ word_data.word }}
+                    <img src="{{ url_for('static', filename=word_data.picture) }}" alt="{{ word_data.word }}" width="50" height="50">
+                </div>
+            {% endfor %}
+        </div>
+
+
+
+          </div>
+    
+
+    <script>
+        function wordClicked(word, picture, element, event) {
+            event.preventDefault();
+        
+            const selectedWordsContainer = document.getElementById('selected-words-container');
+        
+            // Create the new div for the selected word
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-box selected-word';
+            wordDiv.setAttribute('data-category', element.getAttribute('data-category'));
+            wordDiv.innerHTML = `${word} <img src="${picture}" alt="${word}" width="50" height="50">`;
+        
+            // Add the onclick function to handle deselecting
+            wordDiv.onclick = function() {
+                wordUnselected(word, wordDiv);
+            };
+        
+            selectedWordsContainer.appendChild(wordDiv);
+        
+            // Remove the original div
+            element.remove();
+        
+            // Add the word to the input text box
+            const inputBox = document.getElementById('input_text');
+            inputBox.value += word + " ";
+        }
+        
+        function wordUnselected(word, element) {
+            const category = element.getAttribute('data-category');
+            const categoryDiv = document.getElementById(category);
+        
+            // Create the new div for the word to place it back in its category
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-box';
+            wordDiv.setAttribute('data-category', category);
+            wordDiv.innerHTML = `${word} <img src="${element.querySelector('img').src}" alt="${word}" width="50" height="50">`;
+        
+            // Add the onclick function to handle selecting
+            wordDiv.onclick = function(event) {
+                wordClicked(word, element.querySelector('img').src, wordDiv, event);
+            };
+        
+            categoryDiv.appendChild(wordDiv);
+        
+            // Remove the selected div
+            element.remove();
+        
+            // Remove the word from the input text box
+            const inputBox = document.getElementById('input_text');
+            inputBox.value = inputBox.value.replace(new RegExp(word + " ", 'g'), "");
+        }
+        
+
+        
+    </script>
+    
+    
+</body>
+
+</html>
